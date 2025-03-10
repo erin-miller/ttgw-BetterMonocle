@@ -29,6 +29,8 @@ func _process(delta) -> void:
 		if prev_floor_idx != floor_idx:
 			prev_floor_idx = floor_idx
 			update_anomalies()
+	else:
+		clear_anomalies()
 
 func _init_elevator_scene():
 	elevator_scene = SceneLoader.current_scene
@@ -42,41 +44,18 @@ func _init_elevator_scene():
 	update_anomalies()
 
 func update_anomalies():
-	# clear prev anomalies
-	if anom_container:
-			anom_container.queue_free()
+	clear_anomalies()
 	
 	var player: Player = Util.get_player()
 	
 	if not player or not player.stats.has_item("Monocle"):
 		return
 	
-	anom_container = elevator_scene.find_child("AnomaliesContainer", true, false)
-	
-	if not anom_container:
-		anom_container = HBoxContainer.new()
-		anom_container.name = "AnomaliesContainer"
-		anom_container.custom_minimum_size = Vector2(200, 50)  # Adjust as needed
-		
-		# Anchoring it to bottom-center
-		anom_container.anchor_left = 0.5
-		anom_container.anchor_right = 0.5
-		anom_container.anchor_top = 1
-		anom_container.anchor_bottom = 1
-		
-		# Positioning it at the bottom center
-		anom_container.offset_left = -220  # Half of the container width
-		anom_container.offset_right = 100
-		anom_container.offset_top = -100   # Move up slightly from the bottom
-		anom_container.offset_bottom = 0
-
-		# Add to scene
-		print("AnomaliesContainer added at: ", anom_container.global_position)
-		
-		add_child(anom_container)
+	_init_anom_container()
 	
 	var floors: Array[FloorVariant] = elevator_ui.floors
 	
+	# parse for anomalies and display them
 	if floors && floors[floor_idx]:
 		var curr: FloorVariant = floors[floor_idx]
 		
@@ -90,3 +69,29 @@ func update_anomalies():
 				anom_container.add_child(new_icon)
 			else:
 				mod_instance.queue_free()
+
+func clear_anomalies():
+	if anom_container:
+			anom_container.queue_free()
+
+func _init_anom_container():
+	anom_container = elevator_scene.find_child("AnomaliesContainer", true, false)
+	
+	if not anom_container:
+		anom_container = HBoxContainer.new()
+		anom_container.name = "AnomaliesContainer"
+		anom_container.custom_minimum_size = Vector2(200, 50)
+		
+		# bottom center anchor
+		anom_container.anchor_left = 0.5
+		anom_container.anchor_right = 0.5
+		anom_container.anchor_top = 1
+		anom_container.anchor_bottom = 1
+		
+		# bottom center margins
+		anom_container.offset_left = -220  # half of the container width
+		anom_container.offset_right = 100
+		anom_container.offset_top = -100  
+		anom_container.offset_bottom = 0
+		
+		add_child(anom_container)
