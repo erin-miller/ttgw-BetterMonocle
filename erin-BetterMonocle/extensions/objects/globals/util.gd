@@ -1,8 +1,8 @@
 extends "res://objects/globals/util.gd"
 
-
 func get_player() -> Player:
 	var player = super()
-	if player and is_instance_valid(player):
-		player.see_descriptions = true
+	if not is_instance_valid(player):
+		return null
+	player.see_descriptions = true
 	return player
